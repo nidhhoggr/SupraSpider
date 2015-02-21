@@ -1,0 +1,35 @@
+#!/usr/bin/env php
+<?php
+require_once(dirname(__FILE__) . '/libs/HTML-DOM-Parser/simple_html_dom.php');
+
+//autoload basepisder classes
+
+$dentistSpider = new UKDentistSpider();
+
+$html_dom_parser = new simple_html_dom();
+
+$dentistSpider->setHtmlDomParser($html_dom_parser);
+
+$dentistSpider->setDebugMode(TRUE);
+
+$SDBAL = new SpiderDBAL;
+
+$dentistSpider->setDBAL($SDBAL);
+
+$entities = $SDBAL->getEntities();
+
+$SpiderJob = new SpiderJob;
+
+$SpiderJob->isBatch();
+
+$dateRange = implode(' to ', $dentistSpider->getDateRange());
+
+$doctrineJob = $SDBAL->getJobByDateRange($dateRange);
+
+$SpiderJob->init($doctrineJob);
+
+$dentistSpider->setJob($SpiderJob);
+
+$dentistSpider->generateReportsForEntities($entities);
+
+$SDBAL->saveJob($SpiderJob); 
