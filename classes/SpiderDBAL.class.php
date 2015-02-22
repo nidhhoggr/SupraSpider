@@ -5,6 +5,8 @@ interface SpiderDBALInterface
 
     public function getLastJob();
 
+    public function connect();
+
 }
 
 /**
@@ -20,9 +22,14 @@ interface SpiderDBALInterface
  * @author Joseph Persie <joseph@supraliminalsolutions.com> 
  * @license 
  */
-class SpiderDBAL implements SpiderDBALInterface 
+abstract class SpiderDBAL implements SpiderDBALInterface 
 {
+    public function __construct()
+    {
+        $this->connect();
+    }       
 
+    abstract public function connect();
 
     public function getLastJob()
     {
