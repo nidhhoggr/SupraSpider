@@ -155,11 +155,14 @@ class BaseSpider
         curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($this->ch, CURLOPT_AUTOREFERER, TRUE );
 
+        //sleep(1.72 * rand(1, 3));
+
+        $args['url'] = html_entity_decode($args['url']); 
+
         if($this->is_debug_mode_enabled)
         {
             var_dump($args); 
-        //    curl_setopt($this->ch, CURLOPT_HEADER, true);
-        //    curl_setopt($this->ch, CURLOPT_VERBOSE, true);
+            //curl_setopt($this->ch, CURLOPT_VERBOSE, true);
         }
 
         $headers[] = "Accept: text/html, application/xhtml+xml, */*";
@@ -177,11 +180,12 @@ class BaseSpider
             curl_setopt($this->ch, CURLOPT_COOKIEFILE, $cookie_file);
             $this->initialize = TRUE;
         }
-
+        
         curl_setopt($this->ch, CURLOPT_URL, $args['url']);
         curl_setopt($this->ch, CURLOPT_CONNECTTIMEOUT, 15);
         curl_setopt($this->ch, CURLOPT_TIMEOUT, 300);
         curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($this->ch, CURLOPT_HEADER, 1);
 
         if($request_type == "post")
         {
@@ -202,6 +206,18 @@ class BaseSpider
 
         return compact('content','header');
     }
+
+    protected function _parseLocationFromHeaders($content)
+    {
+        if ( ! preg_match('#Location: (.*)#', $content, $location))
+        {
+            throw new Exception('No Location found');
+        }
+
+        $location = str_replace('\r','',trim($location[1]));
+
+        return $location;
+    }   
 
     /**
      * _debug_msg
@@ -322,8 +338,6 @@ class BaseSpider
         $last_url_fragment = end($url_fragments);
 
         parse_str($last_url_fragment, $parsed);
-
-        var_dump($parsed);
 
         return $parsed[$param];
     }
