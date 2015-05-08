@@ -5,12 +5,13 @@ A group of classes to provide extraction between a spider and its expected imple
 
 ## Installation using git clone
 
-1. Implement concrete implmentation of all the inetrfaces
-2. extend SupraSpider
-3. register dependencies (dbal, job and  dom crawler)
+1. Implement concrete implmentation of all the inetrfaces.
+2. extend SupraSpider and implement protected methods where necessary.
+3. register dependencies (dbal, job and  dom crawler).
 
-## Example```php
+## Example
 
+```php
 $dentistSpider = new UKDentistSpider();
 
 $dentistSpider->setDomParser(new simple_html_dom);
@@ -38,5 +39,4 @@ $dentistSpider->setJob($SpiderJob);
 $dentistSpider->generateReportsForEntities($entities);
 
 $SDBAL->saveJob($SpiderJob);
-
 ```
