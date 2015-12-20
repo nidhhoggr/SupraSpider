@@ -19,7 +19,7 @@ class SupraSpider
      *
      * @const string
      */
-    const COOKIE_FILE = 'cookiejar/cookies.txt';
+    private $cookie_file = 'cookiejar/cookies.txt';
 
     /**
      * USER_AGENT 
@@ -28,7 +28,7 @@ class SupraSpider
      *
      * @const string
      */
-    const USER_AGENT = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.0.3705; .NET CLR 1.1.4322)';
+    private $user_agent = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.0.3705; .NET CLR 1.1.4322)';
 
     /**
      * NIL_RECORDS_INDICATOR 
@@ -112,6 +112,14 @@ class SupraSpider
         $this->is_debug_mode_enabled = $is_debug_mode_enabled;
     }
 
+    public function setCookieFile($cookieFile) {
+        $this->cookie_file = $cookieFile;
+    }
+
+    public function setUserAgent($userAgent) {
+        $this->user_agent = $userAgent;
+    }
+
     /**
      * setDomParser
      * 
@@ -119,7 +127,7 @@ class SupraSpider
      * @access public
      * @return void
      */
-    public function setDomParser(SupraSpiderDomParserInterface $dom_parser)
+    public function setDomParser(Interfaces\SupraSpiderDomParserInterface $dom_parser)
     {
         $this->dom_parser = $dom_parser;
     }
@@ -133,7 +141,7 @@ class SupraSpider
      * @access public
      * @return void
      */
-    public function setDBAL(SupraSpiderDBALInterface $dbal)
+    public function setDBAL(Interfaces\SupraSpiderDBALInterface $dbal)
     {
         $this->dbal = $dbal;
     }
@@ -145,7 +153,7 @@ class SupraSpider
      * @access public
      * @return void
      */
-    public function setJob(SupraSpiderJobInterface $job)
+    public function setJob(Interfaces\SupraSpiderJobInterface $job)
     {
         $this->job = $job;
     }
@@ -180,9 +188,9 @@ class SupraSpider
 
         if(!$this->initialize)
         {
-            $cookie_file = dirname(__FILE__) . '/../' . self::COOKIE_FILE;
+            $cookie_file = $this->cookie_file;
 
-            curl_setopt($this->ch, CURLOPT_USERAGENT, self::USER_AGENT);
+            curl_setopt($this->ch, CURLOPT_USERAGENT, $this->user_agent);
             curl_setopt($this->ch, CURLOPT_COOKIESESSION, true);
             curl_setopt($this->ch, CURLOPT_COOKIEJAR, $cookie_file);
             curl_setopt($this->ch, CURLOPT_COOKIEFILE, $cookie_file);
@@ -315,13 +323,13 @@ class SupraSpider
     {
         $url = html_entity_decode($url);
 
-        $response = $this->_base_curl_call(array('url'=>$url), $method);
+        $response = $this->base_curl_call(array('url'=>$url), $method);
 
         $dom = $this->dom_parser->load($response['content']);
 
         if(!is_object($dom))
         {
-            $this->_error_msg("Could not get DOM from: " . $url);
+            $this->error_msg("Could not get DOM from: " . $url);
 
             return FALSE;
         }
@@ -362,7 +370,7 @@ class SupraSpider
     protected function mapSelectorValsToObject($dom, $selectors, &$object)
     {
 
-        foreach($selectors as $property_name => $dom_selector)
+        foreach((array)$selectors as $property_name => $dom_selector)
         {
             $selector_val_node = $dom->find($dom_selector, 0);
 
