@@ -89,6 +89,16 @@ class SupraSpider
     protected $dom_parser;
 
     /**
+     * lastContent 
+     * 
+     *  Stores the last response retrieved from curl
+     *
+     * @var string
+     * @access protected
+     */
+    protected $lastContent;
+
+    /**
      * __construct
      * 
      * @access public
@@ -114,6 +124,11 @@ class SupraSpider
 
     public function setCookieFile($cookieFile) {
         $this->cookie_file = $cookieFile;
+    }
+
+    public function getUserAgent() {
+
+        return $this->user_agent;
     }
 
     public function setUserAgent($userAgent) {
@@ -171,7 +186,7 @@ class SupraSpider
         curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($this->ch, CURLOPT_AUTOREFERER, TRUE );
 
-        //sleep(1.72 * rand(1, 3));
+        sleep(.62 * rand(2, 5));
 
         $args['url'] = html_entity_decode($args['url']); 
 
@@ -206,7 +221,7 @@ class SupraSpider
         if($request_type == "post")
         {
             curl_setopt($this->ch, CURLOPT_POST, 1);
-            curl_setopt($this->ch, CURLOPT_POSTFIELDS, $args['post_data']);
+            curl_setopt($this->ch, CURLOPT_POSTFIELDS, @$args['post_data']);
         }
         else
         {
@@ -220,7 +235,14 @@ class SupraSpider
             trigger_error(curl_error($this->ch));
         }
 
-        return compact('content','header');
+        $this->lastContent = compact('content','header');
+
+        return $this->lastContent;
+    }
+
+    public function getLastContent() {
+
+        return $this->lastContent;
     }
 
     protected function parseLocationFromHeaders($content)
